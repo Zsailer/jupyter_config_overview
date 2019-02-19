@@ -15,13 +15,21 @@ Feel free to explore this repository to get familiar with Jupyter's config layou
 
 ## Who is this overview for?
 
-Right now, this overview targets more experienced Jupyter users and contributors. If you're new to Jupyter, you probably haven't (knowingly) touched Jupyter's configuration system. If you *have* trieds configuring your Jupyter experience, this is a good place to start. 
+Right now, this overview targets more experienced Jupyter users and contributors. If you're new to Jupyter, you probably haven't (knowingly) touched Jupyter's configuration system. If you *have* tried configuring your Jupyter experience, this is a good place to start. 
 
 ## General Overview
 
-Here is a short list of rules that Jupyter follows:
+This repository demostrates the directory structure of Jupyter's configuration system. Explore the contents of this repository to see configuration examples and learn more information about each specific file.
 
-1. Jupyter looks for configuration files in a few different places. You can find these paths by calling `jupyter --paths` in your terminal. All paths under the `config:` section are searched for configuration files. These paths are ranked in order of precedence. Configurations found in the top paths override configuration in the lower paths.
+* `.jupyter/` will be found in your home directory.
+* `{sys-prefix}/` will be found where platform independent Python files are installed. Typically this looks like `/user/local/`. If you're using conda, this usually looks like: `~/miniconda3/etc/jupyter`. If you're inside a conda environment, it might look like: `~/miniconda3/envs/myenv/etc/jupyter`.
+* Treat configuration files in `.jupyter/` as *global configurations*. They will be enabled in every jupyter environment (i.e. all virtual environments will inherit these configs) **and** override their configurations.
+* Treat configurations under `{sys-prefix}` as *local configurations*. They only work inside your current environment.
+
+
+Here is the list of rules that Jupyter's Configuration system follows:
+
+1. Jupyter looks for configuration files in paths listed by `jupyter --paths` under the `config` section. These paths are ranked in order of authority. Configurations found in the top paths override configuration in the lower paths.
 2. Configuration files in the current directory override all other configuration files.
 3. Configurations in `jupyter_*_config*` files override configurations in `jupyter_config*` files.
 4. JSON configuration files override Python configuration files.
@@ -29,7 +37,7 @@ Here is a short list of rules that Jupyter follows:
 
 ## Which configuration wins?
 
-This section lists a few "who wins?" scenarios. This may help answer questions about why certain configurations are overridden. The configuration file that "wins" in each row is **bolded**.
+This section lists a few "who wins?" scenarios. The configuration file that "wins" in each row is **bolded**.
 
 |   Who wins?  | Why?|
 |----------|----------|
