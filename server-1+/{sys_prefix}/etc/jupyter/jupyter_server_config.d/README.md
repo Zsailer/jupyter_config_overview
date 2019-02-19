@@ -1,0 +1,1 @@
+Only JSON files go in here. 
