@@ -7,8 +7,8 @@ This repo provides a tour of the jupyter configuration system. Each configuratio
 **Table of Contents**
 
 * [Who is this overview for?](#who-is-this-overview-for)
-* [Notebook 5+ Design]()
-* [Jupyter Server 1+ Design]()
+* [Notebook 5+ Design](#notebook-5-design)
+* [Jupyter Server 1+ Design](#jupyter-server-1-design)
 * [Which configuration wins?](#which-configuration-wins)
 * [Contributing](#contributing)
 * [History (tl;dr)](#history-tldr)
