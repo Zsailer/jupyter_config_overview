@@ -29,7 +29,7 @@ Here is a short list of rules that Jupyter follows:
 
 ## Which configuration wins?
 
-This section lists a few "who wins?" scenarios. This may help answer questions about who certain config collisions are happening. 
+This section lists a few "who wins?" scenarios. This may help answer questions about why certain configurations are overridden. The configuration file that "wins" in each row is **bolded**.
 
 |   Who wins?  | Why?|
 |----------|----------|
