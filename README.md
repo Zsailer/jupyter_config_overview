@@ -1,35 +1,59 @@
 # How to navigate Jupyter's configuration system 
 
-*This is a work in progress*
+*A walk through Jupyter's (server) configuration system*
 
-This repo provides a tour of the jupyter configuration system. Each configuration file shows example code that could be found in that file. Each directory includes a README file with more information about the files and subdirectories in that file. In many places, I've included diagrams showing the 
+Feel free to explore this repository to get familiar with Jupyter's config layout. Each directory includes a README explaining the content in that directory.
 
 **Table of Contents**
 
 * [Who is this overview for?](#who-is-this-overview-for)
-* [Notebook 5+ Design](#notebook-5-design)
-* [Jupyter Server 1+ Design](#jupyter-server-1-design)
+* [General Overview](#configuration-at-a-glance)
 * [Which configuration wins?](#which-configuration-wins)
+* [Jupyter Notebook 5.x Overview](#notebook-5x-overview)
+* [Jupyter Server 1.x Overview](#jupyter-server-1x-overview)
 * [Contributing](#contributing)
 * [History (tl;dr)](#history-tldr)
 
 ## Who is this overview for?
 
-Right now, this overview targets more experienced jupyter users and contributors. If you're new to Jupyter, you probably haven't (knowingly) touched Jupyter's configuration system. 
+Right now, this overview targets more experienced Jupyter users and contributors. If you're new to Jupyter, you probably haven't (knowingly) touched Jupyter's configuration system. If you *have* trieds configuring your Jupyter experience, this is a good place to start. 
 
-*How should I think about each configuration source?*
+## General Overview
 
+Here is a short list of rules that Jupyter follows:
 
+1. Jupyter looks for configuration files in a few different places. You can find these paths by calling `jupyter --paths` in your terminal. All paths under the `config:` section are searched for configuration files. These paths are ranked in order of precedence. Configurations found in the top paths override configuration in the lower paths.
+2. Configuration files in the current directory override all other configuration files.
+3. Configurations in `jupyter_*_config*` files override configurations in `jupyter_config*` files.
+4. JSON configuration files override Python configuration files.
+5. Configuration files in `jupyter_notebook_config.d` folders are for server extensions **only**. They must be in JSON.
 
+## Which configuration wins?
 
-## Notebook 5+ Design
+This section lists a few "who wins?" scenarios. This may help answer questions about who certain config collisions are happening. 
 
-* `jupyter_notebook_config.d` is a directory that holds `*.json` configuration files for extensions
+|   Who wins?  | Why?|
+|----------|----------|
+| <code style="color: green">{sys-prefix}/etc/jupyter/jupyter_notebook_config.py</code> <br>vs.<br> `{sys-prefix}/etc/jupyter/jupyter_notebook_config.d/my_extension.json` |  The `my_extension.json` file can only touch the `nbserver_extension` attribute. If this attribute is set in both files, the JSON file overrides settings in the Python file (according to Rule 4) *without warning*. |
+| <code style="color: green">{sys-prefix}/etc/jupyter/jupyter_notebook_config.json</code> <br>vs.<br> `{sys-prefix}/etc/jupyter/jupyter_notebook_config.d/my_extension.json` |  The `my_extension.json` file can only touch the `nbserver_extension` attribute. If this attribute is set in both files, the `jupyter_notebook_config.json` file overrides the `my_extension.json` file *without warning*. |
+| <code style="color: green">{sys-prefix}/etc/jupyter/jupyter_notebook_config.d/**extension1.json**</code> <br>vs.<br> `{sys-prefix}/etc/jupyter/jupyter_notebook_config.d/`**`extension2.json`** | Config files in `jupyter_notebook_config.d` are read in order (sorted by your filesystem). Settings in earlier files will be overridden by those same settings in later files *without warning*. |
+| `{sys-prefix}/etc/jupyter/jupyter_notebook_config.py` <br>vs.<br> <code style="color: green">{sys-prefix}/etc/jupyter/jupyter_notebook_config.**json**</code> | Both files are loaded, but the configuration settings in the JSON file override the settings in the Python (according to Rule 4). If you have conflicting settings, *a warning* appears in the logs. |
+| `{sys-prefix}/etc/jupyter/jupyter_config.py` <br>vs.<br> <code style="color: green">{sys-prefix}/etc/jupyter/**jupyter_notebook_config.py**</code> | `jupyter_notebook_config.py` overrides settings in `jupyter_config.py`, following Rule 3. |
+| `{sys-prefix}/etc/jupyter/`**`jupyter_config.json`** <br>vs.<br> <code style="color: green">{sys-prefix}/etc/jupyter/jupyter_notebook_config.py</code> | `jupyter_notebook_config.py` overrides settings in `jupyter_config.json`, following Rule 3.|
+| <code style="color: green">**~/.jupyter**/jupyter_notebook_config.py</code> <br>vs.<br> `{sys-prefix}/etc/jupyter/jupyter_notebook_config.py` | Following Rule 1, configuration under `~/.jupyter` overrides `{sys-prefix}`. |
+
+## Notebook 5.x Overview
+
+* `.jupyter/` will be found in your home directory.
+* `{sys-prefix}/` will be found where platform independent Python files are installed. Typically this looks like `/user/local/`. If you're using conda, this usually looks like: `~/miniconda3/etc/jupyter`. If you're inside a conda environment, it might look like: `~/miniconda3/envs/myenv/etc/jupyter`.
+* Treat configuration files in `.jupyter/` as *global configurations*. They will be enabled in every jupyter environment (i.e. all virtual environments will inherit these configs) **and** override their configurations.
+* Treat configurations under `{sys-prefix}` as *local configurations*. They only work inside your current environment.
+* The `jupyter_notebook_config.d` directory is for extensions **only**. Extension developers use this directory to enable their extensions.
 * `jupyter_notebook_config.d/*.json` are static configuration files for configuring extensions. They cannot affect the upstream applications and services. The server only looks at the `nbserver_extensions` key and ignores anything else.
 * 
 
 
-## Jupyter Server 1+ Design
+## Jupyter Server 1.x Overview
 
 The jupyter_server enhancement proposal will likely change the configuration. 
 
@@ -41,28 +65,6 @@ List of changes:
 * `jupyter_notebook_config.d` becomes `jupyter_server_config.d`
 * All *static* `*.json` config files in `jupyter_server_config.d` directory change their base `NotebookApp` to `ServerApp`.  
 
-
-## Which configuration wins?
-
-This section lists a few "who wins?" scenarios. This may help answer questions about who certain config collisions are happening. 
-
-A few "rule-of-thumbs" when thinking about "who wins?": 
-
-1. Configurations in `{sys-prefix}/etc/jupyter/` override configurations in `./jupyter/`.
-2. Configurations in `jupyter_*_config*` files override configurations in `jupyter_config*` files.
-3. JSON configuration files override Python configuration files.
-
-Here's how these rules play out in practice:
-
-|   Paths  | Who wins?|
-|----------|----------|
-| `{sys-prefix}/etc/jupyter/jupyter_notebook_config.py` <br>vs.<br>`{sys-prefix}/etc/jupyter/jupyter_notebook_config.d/my_extension.json` |  The `my_extension.json` file can only touch the `nbserver_extension` attribute. If this attribute is set in both files, the JSON file overrides settings in the Python file (according to Rule 3) *without warning*. |
-|`{sys-prefix}/etc/jupyter/jupyter_notebook_config.json` <br>vs.<br> `{sys-prefix}/etc/jupyter/jupyter_notebook_config.d/my_extension.json` |  The `my_extension.json` file can only touch the `nbserver_extension` attribute. If this attribute is set in both files, the `jupyter_notebook_config.json` file overrides the `my_extension.json` file *without warning*. |
-| `{sys-prefix}/etc/jupyter/jupyter_notebook_config.d/`**`extension1.py`** <br>vs.<br> `{sys-prefix}/etc/jupyter/jupyter_notebook_config.d/`**`extension2.py`** | Config files in `jupyter_notebook_config.d` are read in order (sorted by your filesystem). Settings in earlier files will be overridden by those same settings in later files *without warning*. |
-| `{sys-prefix}/etc/jupyter/jupyter_notebook_config.py` <br>vs.<br> `{sys-prefix}/etc/jupyter/jupyter_notebook_config.`**`json`** | Both files are loaded, but the configuration settings in the JSON file override the settings in the Python (according to Rule 3). If you have conflicting settings, *a warning* appears in the logs. |
-| `{sys-prefix}/etc/jupyter/jupyter_config.py` <br>vs.<br> `{sys-prefix}/etc/jupyter/`**`jupyter_notebook_config.py`** | `jupyter_notebook_config.py` overrides settings in `jupyter_config.py`, following Rule 1. |
-| `{sys-prefix}/etc/jupyter/`**`jupyter_config.json`** <br>vs.<br> `{sys-prefix}/etc/jupyter/jupyter_notebook_config.py` | `jupyter_notebook_config.py` overrides settings in `jupyter_config.json`, following Rule 2.|
-| **`~/.jupyter`**`/jupyter_notebook_config.py` <br>vs.<br> `{sys-prefix}/etc/jupyter/jupyter_notebook_config.py` | Following Rule 1, configuration under `{sys-prefix}` overrides `~/.jupyter`. |
 
 
 
