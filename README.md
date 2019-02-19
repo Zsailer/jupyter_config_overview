@@ -1,15 +1,17 @@
 # How to navigate Jupyter's configuration system 
 
+*This is a work in progress*
+
 This repo provides a tour of the jupyter configuration system. Each configuration file shows example code that could be found in that file. Each directory includes a README file with more information about the files and subdirectories in that file. In many places, I've included diagrams showing the 
 
 **Table of Contents**
 
-* [Who is this overview for?]()
+* [Who is this overview for?](#who-is-this-overview-for)
 * [Notebook 5+ Design]()
 * [Jupyter Server 1+ Design]()
-* [Which configuration wins?]()
-* [Contributing]()
-* [History (tl;dr)]()
+* [Which configuration wins?](#which-configuration-wins)
+* [Contributing](#contributing)
+* [History (tl;dr)](#history-tldr)
 
 ## Who is this overview for?
 
@@ -19,14 +21,15 @@ Right now, this overview targets more experienced jupyter users and contributors
 
 
 
-## Current Design
+
+## Notebook 5+ Design
 
 * `jupyter_notebook_config.d` is a directory that holds `*.json` configuration files for extensions
 * `jupyter_notebook_config.d/*.json` are static configuration files for configuring extensions. They cannot affect the upstream applications and services. The server only looks at the `nbserver_extensions` key and ignores anything else.
 * 
 
 
-## After jupyter server JEP
+## Jupyter Server 1+ Design
 
 The jupyter_server enhancement proposal will likely change the configuration. 
 
