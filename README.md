@@ -24,14 +24,16 @@ This repository demostrates the directory structure of Jupyter's configuration s
 Summary:
 * `.jupyter/` will be found in your home directory.
 * `{sys-prefix}/` will be found where platform independent Python files are installed. Typically this looks like `/user/local/`. If you're using conda, this usually looks like: `~/miniconda3/etc/jupyter`. If you're inside a conda environment, it might look like: `~/miniconda3/envs/myenv/etc/jupyter`.
-* Treat configuration files in `.jupyter/` as *global configurations*. They will be enabled in every jupyter environment (i.e. all virtual environments will inherit these configs) **and** override their configurations.
+* Treat configuration files in `~/.jupyter/` as *global configurations*. They will be enabled in every jupyter environment (i.e. all virtual environments will inherit these configs) **and** override their configurations.
 * Treat configurations under `{sys-prefix}` as *local configurations*. They only work inside your current environment.
+* `jupyter_config.py|json` is useful for storing all configuration (NotebookApp, Extensions, etc.) in a single file. 
+* `jupyter_*_.py|json` is used for application specific configuration. 
 
 List of Rules (in order):
 
 1. Configuration files in the current directory override all other configuration files.
 2. Jupyter then looks for configuration files in paths listed by `jupyter --paths` under the `config` section. These paths are ranked in order of authority. Configurations found in the top paths override configuration in the lower paths.
-3. Configurations in `jupyter_*_config*` files override configurations in `jupyter_config*` files.
+3. Configurations in `jupyter_*_config.py|json` files override configurations in `jupyter_config.py|json` files.
 4. JSON configuration files override Python configuration files.
 5. Configuration files in `jupyter_notebook_config.d` folders are for server extensions **only**. They must be in JSON.
 
@@ -51,15 +53,23 @@ This section lists a few "who wins?" scenarios. The configuration file that "win
 
 ## Jupyter Notebook 5.x vs. Server 1.x
 
-This is an overview of how the configuration system changes under the Jupyter Server Enhancement Proposal. This JEP proposes to break out the Jupyter Server from the classic Notebook frontend; currently, they are deeply coupled. Thi
+This is an overview of how the configuration system changes under the Jupyter Server Enhancement Proposal. This JEP proposes to break out the Jupyter Server from the classic Notebook frontend; currently, they are deeply coupled. The notebook application would become a jupyter server extension, similar to how jupyter lab is currently a notebook server extension. 
 
 List of differences
-* Move server-specific configuration from `jupyter_notebook_config.py` into `jupyter_server_config.py`.
-* Server extensions configurations move from `jupyter_notebok_config.d` to `jupyter_server_config.d` directory.
-* Server extensions are found using the `jpserver_extensions` trait in the `ServerApp`. 
-* Extension configuration files in `jupyter_server_config.d` must be enabled using the `jpserver_extensions` trait.
-* Extensions can have their own configuration files, i.e. `jupyter_<my-extension>_config.py` or `jupyter_<my-extension>_config.json`
+* Move server-specific configuration from `jupyter_notebook_config.py|json` into `jupyter_server_config.py|json`.
+* Server extensions configurations move from `jupyter_notebok_config.d` to `jupyter_server_config.d`.
+* The tornado server and web application move to `jupyter_server`. They become `ServerApplication` and `ServerWebApp`
+* The `NotebookApp` becomes a server extension. It would only load notebook specific configuration/traitlets, from `jupyter_notebook_config.py|json`.
+* Server extensions are found using the `jpserver_extensions` trait instead of the `nbserver_extensions` trait in the `ServerApp`. 
+* Extension configuration files in `jupyter_server_config.d` must be enabled using the `jpserver_extensions` trait. They are enabled by config files in `jupyter_server_config.d`.
+* Extensions can create their own configuration files in `{sys-prefix}/etc/jupyter/` or `~/.jupyter`.
+, i.e. `jupyter_<my-extension>_config.py|json`.
 
+To avoid breaking backwards compatibility, we could simply copy user's configurations into new locations. 
+* **Copy** `jupyter_notebook_config.py|json` to `jupyter_server_config.py|json`
+* **Copy** `jupyter_notebook_config.d/` to `jupyter_server_config.d`.
+* `NotebookApp` becomes `ServerApp` in all copied files. 
+* Leftover server traits in `jupyter_notebook_config.py|json` get ignored when the notebook extension is started.
 
 ## Contributing
 
