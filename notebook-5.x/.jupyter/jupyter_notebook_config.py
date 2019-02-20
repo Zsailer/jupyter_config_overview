@@ -1,2 +1,4 @@
 # Set configurations as nested objects under 'c'.
-c.NotebookApp.open_browser = True
+# Whether to open the browser window automatically or not.
+# NOTE: This overrides `jupyter_config.py|json` setting.
+c.NotebookApp.open_browser = False
