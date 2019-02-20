@@ -9,9 +9,8 @@ Feel free to explore this repository to get familiar with Jupyter's config layou
 * [Who is this overview for?](#who-is-this-overview-for)
 * [General Overview](#configuration-at-a-glance)
 * [Which configuration wins?](#which-configuration-wins)
-* [Jupyter Notebook 5.x vs. Server 1.x](#jupyter-notebook-5x-vs-server1x)
+* [Jupyter Notebook 5.x vs. Server 1.x](#jupyter-notebook-5x-vs-server-1x)
 * [Contributing](#contributing)
-* [History (tl;dr)](#history-tldr)
 
 ## Who is this overview for?
 
@@ -74,18 +73,4 @@ To avoid breaking backwards compatibility, we could simply copy user's configura
 ## Contributing
 
 If you see any mistakes, please let me know (open an issue)! I'd like to get this right and prevent extra confusion. If there is something missing or unclear, feel free to submit a pull request. 
-
-## History (tl;dr)
-
-*Excuse the stream-of-consciousness form*
-
-This section hopes to address the question: *why is Jupyter's configuration system complex?* Jupyter is an evolving *open-source* project. 10 years ago, we never could have guessed `notebooks` would be where they are today. As a result, we never predicted the configuration system that today's Jupyter ecosystem would need. 
-
-But here we are. Jupyter has grown tremendously and users, contributors, and developers are creating amazing things. We now have nteract, jupyterlab, jupyterhub, ... XX . I really exciting area of development is Jupyter extensions. The impact of Jupyter is growing further because more and more problems can be solved by this evolving community. 
-
-The complexity of Jupyter's configurations system is the consequence of our inability to predict today's Jupyter. We wrote this system early in the development of the jupyter notebook. Since then, we've been *patching* this system to handle the various needs of the community. Unfortunately, *patching* is not a sustainable solution. The further we patched, the more confusing our configuration system became. The more confusing the system becomes, the more frustrated users and contributors becomes. *How do overcome this problem?*
-
-One way would be to start over on our configuration system. I would argue, this is the least desirable solution. All users would have to rewrite their configurations. It's backwards incompatible. Bad news all around.
-
-We could *keep patching*. The problem with this approach is that configuration becomes increasing difficult to maintain and confusing to use.
 
