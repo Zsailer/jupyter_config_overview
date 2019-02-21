@@ -2,7 +2,7 @@
 
 *A walk through Jupyter's (server) configuration system*
 
-Feel free to explore this repository to get familiar with Jupyter's config layout. Each directory includes a README explaining the content in that directory.
+Feel free to explore this repository to get familiar with Jupyter's config layout. The `notebook-5.x` directory shows an example of the current configuration design. The `server-1.x` shows an example of the (possible) future configuration design under the Jupyter Server Enhancement Proposal. Each directory includes a README explaining the content in that directory.
 
 **Table of Contents**
 
